@@ -2,6 +2,11 @@ import os
 import json
 import requests
 from dotenv import load_dotenv
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app)
 load_dotenv()
 
 API_KEY = os.environ["RIOT_API_KEY"]
@@ -20,8 +25,8 @@ def get_summoner_by_puuid(puuid):
     r = requests.get(url, headers=headers)
     return r.json()
 
-def get_recent_matches(puuid, count=5):
-    url = f"https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count={count}"
+def get_recent_matches(puuid):
+    url = f"https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids"
     headers = {"X-Riot-Token": API_KEY}
     r = requests.get(url, headers=headers)
     return r.json()
@@ -32,18 +37,19 @@ def get_match_details(match_id):
     r = requests.get(url, headers=headers)
     return r.json()
 
-if __name__ == "__main__":
-    game_name = "joe schmoe"
-    tag_line = "swag"
+@app.route('/recap', methods=['GET'])
+def recap():
+    game_name = request.args.get('gameName')
+    tag_line = request.args.get('tagLine')
+    if not game_name or not tag_line:
+        return jsonify({'error': 'Missing gameName or tagLine'}), 400
     puuid = get_puuid_by_riot_id(game_name, tag_line)
     if not puuid:
-        print(f"Could not find PUUID for Riot ID {game_name}#{tag_line}")
-        exit(1)
+        return jsonify({'error': f'Could not find PUUID for Riot ID {game_name}#{tag_line}'}), 404
     summoner = get_summoner_by_puuid(puuid)
-    match_ids = get_recent_matches(puuid, count=5)
+    match_ids = get_recent_matches(puuid)
     matches = [get_match_details(mid) for mid in match_ids]
 
-    # Analyze matches for useful info
     champ_counts = {}
     wins = 0
     highlight = ""
@@ -57,7 +63,6 @@ if __name__ == "__main__":
         champ_counts[champ] = champ_counts.get(champ, 0) + 1
         if player.get("win"):
             wins += 1
-        # Simple highlight: highest kills
         if not highlight or player.get("kills", 0) > highlight.get("kills", 0):
             highlight = player
     most_played_champ = max(champ_counts, key=champ_counts.get) if champ_counts else "Unknown"
@@ -71,4 +76,7 @@ if __name__ == "__main__":
         "winrate": winrate,
         "highlight": highlight_str
     }
-    print(json.dumps(recap, indent=2))
+    return jsonify(recap)
+
+if __name__ == "__main__":
+    app.run(debug=True)
