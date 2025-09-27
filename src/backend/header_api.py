@@ -69,12 +69,27 @@ def recap():
     winrate = f"{wins}/{len(matches)} ({(wins/len(matches)*100 if matches else 0):.1f}%)"
     highlight_str = f"{highlight.get('championName', '')}: {highlight.get('kills', 0)} Kills, {highlight.get('deaths', 0)} Deaths, {highlight.get('assists', 0)} Assists"
 
+    # Data Dragon version (should match current patch, can be made dynamic)
+    dd_version = "13.19.1"
+    # Champion image URL
+    champ_img_url = f"http://ddragon.leagueoflegends.com/cdn/{dd_version}/img/champion/{most_played_champ}.png" if most_played_champ != "Unknown" else None
+    # Player icon
+    profile_icon_id = summoner.get("profileIconId", 0)
+    profile_icon_url = f"http://ddragon.leagueoflegends.com/cdn/{dd_version}/img/profileicon/{profile_icon_id}.png"
+    # Highlight champion image
+    highlight_champ = highlight.get("championName", "Unknown")
+    highlight_champ_img_url = f"http://ddragon.leagueoflegends.com/cdn/{dd_version}/img/champion/{highlight_champ}.png" if highlight_champ != "Unknown" else None
+
     recap = {
         "summoner": summoner.get("name", game_name),
         "games_played": len(matches),
         "most_played_champion": most_played_champ,
+        "most_played_champion_img": champ_img_url,
         "winrate": winrate,
-        "highlight": highlight_str
+        "highlight": highlight_str,
+        "highlight_champion_img": highlight_champ_img_url,
+        "profile_icon_id": profile_icon_id,
+        "profile_icon_url": profile_icon_url
     }
     return jsonify(recap)
 
