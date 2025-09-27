@@ -69,7 +69,7 @@ function App() {
                 style={{
                   fontWeight: 700,
                   fontSize: "1.2rem",
-                  color: "#eabd2b",
+                  color: "#f4c324ff",
                 }}
               >
                 {recap.summoner}

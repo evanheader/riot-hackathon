@@ -1,0 +1,9 @@
+9/26/2025
+
+-Played around with the League APIs
+-Made AWS accounts and played with the features
+-Designed a simple frontend and backend for inputting player's gameName and tagName to return user's 20 most recent stats
+-Planning to use the links below to fetch the user's end of match data
+    https://developer.riotgames.com/apis#account-v1
+    https://developer.riotgames.com/apis#match-v5
+-Brainstorming how to use AWS AI services to train off players of different
